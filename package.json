@@ -1,0 +1,26 @@
+{
+  "name": "ImageService",
+  "version": "0.0.0",
+  "description": "Example RESTful service to store and retrieve images.",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SteveBrooks/ImageService.git"
+  },
+  "author": "Steve Brooks",
+  "license": [ {
+    "type": "MIT",
+    "url": "http://fibo.mit-license.org/"
+  } ],
+  "bugs": {
+     "url": "https://github.com/SteveBrooks/ImageService/issues"
+  },
+  "homepage": "https://github.com/SteveBrooks/ImageService",
+  "devDependencies": {
+    "chai": "^1.9.1",
+    "mocha": "^1.21.4"
+  }
+}
