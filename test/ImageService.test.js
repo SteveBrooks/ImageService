@@ -23,79 +23,101 @@ describe('ImageService', function() {
         });
     });
 
-    it('should support image CRUD operations', function(done) {
-
-        // POST - Create
+    function Post(data,onPost) {
         request(url)
             .post('/image')
-            .send({ blob: '<ImageData>' })
+            .send(data)
             .expect('Content-Type', /json/)
             .expect(201) //Status code
-            .end(function(err,res) {
+            .end(onPost);
+    }
+
+    function GetAll(onGet) {
+        request(url)
+            .get('/image')
+            .expect('Content-Type', /json/)
+            .expect(200) //Status code
+            .end(onGet);
+    }
+
+    function Get(id,onGet) {
+        request(url)
+            .get('/image/' + id)
+            .expect('Content-Type', /json/)
+            .expect(200) //Status code
+            .end(onGet);
+    }
+
+    function GetNonexistant(id,onGet) {
+        request(url)
+            .get('/image/' + id)
+            .expect(404) //Status code
+            .end(onGet);
+    }
+
+    function Put(id,data,onPut) {
+        request(url)
+            .put('/image/' + id + '/data')
+            .send(data)
+            .expect(200) //Status code
+            .end(onPut);
+    }
+
+    function Delete(id,onDelete) {
+        request(url)
+            .delete('/image/' + id)
+            .expect(200) //Status code
+            .end(onDelete);
+    }
+
+    it('should support image CRUD operations', function(done) {
+        var d0 = { blob: '<ImageData>' };
+        var d1 = { blob: '<ModifiedImageData>' };
+
+        // POST
+        Post(d0, function(err,res) {
+            if (err) { throw err; }
+            res.body.should.have.property('_id');
+            res.body.blob.should.equal(d0.blob);
+
+            // GET
+            Get(res.body._id, function(err,res) {
+                var item = null;
                 if (err) { throw err; }
-                res.body.should.have.property('_id');
-                res.body.blob.should.equal('<ImageData>');
+                //res.body.should.be.a('array');
+                //res.body.length.should.be.equal(1);
+                item = res.body;
+                item.should.have.property('_id');
+                item.blob.should.equal(d0.blob);
 
-                // GET by ID
-                request(url)
-                    .get('/image?_id=' + res.body._id)
-                    .expect('Content-Type', /json/)
-                    .expect(200) //Status code
-                    .end(function(err,res) {
-                        var item = null;
+                // PUT
+                Put(item._id, d1, function(err,res) {
+                    if (err) { throw err; }
+
+                    // GET
+                    Get(item._id, function(err,res) {
+                        var item2 = null;
                         if (err) { throw err; }
-                        res.body.should.be.a('array');
-                        res.body.length.should.be.equal(1);
-                        item = res.body[0];
-                        item.should.have.property('_id');
-                        item.blob.should.equal('<ImageData>');
+                        item2 = res.body;
+                        item2.blob.should.equal(d1.blob);
 
-                        // PUT update
-                        request(url)
-                            .put('/image/' + item._id)
-                            .send({ blob: '<ModifiedImageData>' })
-                            .expect(200) //Status code
-                            .end(function(err,res) {
+                        // DELETE
+                        Delete(item._id, function(err,res) {
+                            if (err) { throw err; }
+
+                            // GET
+                            GetNonexistant(item._id, function(err,res) {
+                                var item2 = null;
                                 if (err) { throw err; }
+                                console.log(res.body);
+                                //res.body.should.be.equal(0);
 
-                                // GET by ID
-                                request(url)
-                                    .get('/image?_id=' + item._id)
-                                    .expect('Content-Type', /json/)
-                                    .expect(200) //Status code
-                                    .end(function(err,res) {
-                                        var item2 = null;
-                                        if (err) { throw err; }
-                                        res.body.should.be.a('array');
-                                        res.body.length.should.be.equal(1);
-                                        item2 = res.body[0];
-                                        item2.should.have.property('_id');
-                                        item2.blob.should.equal('<ModifiedImageData>');
-
-                                        // DELETE
-                                        request(url)
-                                            .delete('/image/' + item._id)
-                                            .expect(200) //Status code
-                                            .end(function(err,res) {
-                                                if (err) { throw err; }
-
-                                                // GET
-                                                request(url)
-                                                    .get('/image?_id=' + item._id)
-                                                    .expect('Content-Type', /json/)
-                                                    .expect(200) //Status code
-                                                    .end(function(err,res) {
-                                                        var item2 = null;
-                                                        if (err) { throw err; }
-                                                        res.body.should.be.a('array');
-                                                        res.body.length.should.be.equal(0);
-
-                                                        done();
-                                                    });
-                                            });
-                                    });
+                                done();
                             });
+                        });
                     });
+                });
             });
+        });
     });
 });

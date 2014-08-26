@@ -38,7 +38,7 @@ var svc = function() {
         });
     });
 
-    this.server.put('/image/:id', function (req, res, next) {
+    this.server.put('/image/:id/data', function (req, res, next) {
         if (req.params.blob === undefined) {
             return next(new restify.InvalidArgumentError('Image must be supplied'));
         }
@@ -49,6 +49,18 @@ var svc = function() {
             res.send();
         });
     });
+
+    this.server.get('/image/:id/data', function(req, res, next) {
+        imageSave.findOne({ _id: req.params.id }, function(error, image) {
+            if (error) return next(new restify.InvalidArgumentError(JSON.stringify(error.errors)));
+
+            if (image) {
+                res.send(image);
+            } else {
+                res.send(404);
+            }
+        });
+    })
 
     this.server.del('/image/:id', function (req, res, next) {
       imageSave.delete(req.params.id, function (error, image) {
